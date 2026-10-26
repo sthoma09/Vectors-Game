@@ -1,0 +1,57 @@
+
+public class GameBoard {
+    private char[][] board;
+
+    public GameBoard() {
+        board = new char[8][8];
+
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                board[row][col] = ' ';
+            }
+        }
+    }
+
+    public boolean isValidMove(int row, int col) {
+        if (row < 0 || row >= 8 ||
+            col < 0 || col >= 8) {
+            return false;
+        }
+
+        return board[row][col] == ' ';
+    }
+
+    public void placeToken(int row, int col, char token) {
+        if (isValidMove(row, col)) {
+            board[row][col] = token;
+        }
+    }
+
+    public void displayBoard() {
+        System.out.println("  0   1   2   3   4   5   6   7");
+
+        for (int row = 0; row < 8; row++) {
+            System.out.println("---------------------------------");
+
+            for (int col = 0; col < 8; col++) {
+                System.out.print("| " + board[row][col] + " ");
+            }
+
+            System.out.println("| " + row);
+        }
+
+        System.out.println("---------------------------------");
+    }
+
+    public int getVectorPoints(int length) {
+        if (length == 3) {
+            return 4;
+        } else if (length == 4) {
+            return 6;
+        } else if (length == 5) {
+            return 10;
+        } else {
+            return 0;
+        }
+    }
+}
