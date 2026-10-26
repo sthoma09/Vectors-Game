@@ -1,0 +1,94 @@
+
+import java.util.Random;
+import java.util.Scanner;
+
+public class Vectors {
+    public static void main(String[] args) {
+        Scanner input = new Scanner(System.in);
+        Random random = new Random();
+
+        GameBoard board = new GameBoard();
+
+        Player player = new Player("Player", 'X');
+        Player computer = new Player("Computer", 'C');
+
+        System.out.print("How many rounds? (default 20): ");
+
+        int rounds = 20;
+
+        if (input.hasNextInt()) {
+            int choice = input.nextInt();
+
+            if (choice > 0) {
+                rounds = choice;
+            }
+        } else {
+            input.next();
+        }
+
+        for (int turn = 1; turn <= rounds; turn++) {
+            board.displayBoard();
+
+            System.out.println("Turn " + turn + " of " + rounds);
+
+            // Get a valid player move
+            int row;
+            int col;
+
+            while (true) {
+                System.out.print("Player(X) Turn (Row Col): ");
+
+                if (!input.hasNextInt()) {
+                    System.out.println("Enter two numbers.");
+                    input.next();
+                    continue;
+                }
+
+                row = input.nextInt();
+
+                if (!input.hasNextInt()) {
+                    System.out.println("Enter two numbers.");
+                    continue;
+                }
+
+                col = input.nextInt();
+
+                if (board.isValidMove(row, col)) {
+                    break;
+                }
+
+                System.out.println("Invalid move. Try again.");
+            }
+
+            board.placeToken(row, col, player.getToken());
+
+            // Computer chooses a random empty cell
+            int computerRow;
+            int computerCol;
+
+            do {
+                computerRow = random.nextInt(8);
+                computerCol = random.nextInt(8);
+            } while (!board.isValidMove(
+                    computerRow, computerCol));
+
+            board.placeToken(
+                    computerRow,
+                    computerCol,
+                    computer.getToken());
+
+            // Vector scoring will be added here.
+        }
+
+        board.displayBoard();
+
+        int finalScore = player.getScore()
+                       - computer.getScore();
+
+        System.out.println("Player Score: " + player.getScore());
+        System.out.println("Computer Score: " + computer.getScore());
+        System.out.println("Final Score: " + finalScore);
+
+        input.close();
+    }
+}
