@@ -1,0 +1,38 @@
+
+public class Player {
+    private String name;
+    private char token;
+    private int score;
+    private int lastRoundScore;
+
+    public Player(String name, char token) {
+        this.name = name;
+        this.token = token;
+        this.score = 0;
+        this.lastRoundScore = 0;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public char getToken() {
+        return token;
+    }
+
+    public int getScore() {
+        return score;
+    }
+
+    public int getLastRoundScore() {
+        return lastRoundScore;
+    }
+
+    public void addPoints(int points) {
+        score += points;
+    }
+
+    public void setLastRoundScore(int points) {
+        lastRoundScore = points;
+    }
+}
