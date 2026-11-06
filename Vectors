@@ -1,94 +1,211 @@
+package Game;
 
 import java.util.Random;
 import java.util.Scanner;
 
 public class Vectors {
+
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
         Random random = new Random();
-
         GameBoard board = new GameBoard();
 
-        Player player = new Player("Player", 'X');
+        System.out.println("==============================");
+        System.out.println("          VECTORS");
+        System.out.println("==============================");
+        System.out.print("Enter your name: ");
+        String playerName = input.nextLine().trim();
+
+        if (playerName.isEmpty()) {
+            playerName = "Player";
+        }
+
+        Player player = new Player(playerName, 'X');
         Player computer = new Player("Computer", 'C');
 
-        System.out.print("How many rounds? (default 20): ");
+        int highScore = HighScore.loadScore();
+        String highScoreName = HighScore.loadName();
+
+        System.out.println();
+        System.out.println("Current High Score: " + highScore);
+        System.out.println("Held by: " + highScoreName);
+        System.out.print("\nHow many rounds? (default 20): ");
 
         int rounds = 20;
+        String roundInput = input.nextLine().trim();
 
-        if (input.hasNextInt()) {
-            int choice = input.nextInt();
+        if (!roundInput.isEmpty()) {
+            try {
+                int choice = Integer.parseInt(roundInput);
 
-            if (choice > 0) {
-                rounds = choice;
+                if (choice > 0) {
+                    rounds = Math.min(choice, 32);
+                } else {
+                    System.out.println("Using default of 20 rounds.");
+                }
+
+            } catch (NumberFormatException e) {
+                System.out.println("Using default of 20 rounds.");
             }
-        } else {
-            input.next();
+
         }
+
+        System.out.println("\nStarting game!");
+
+        int previousPlayerBoardScore = 0;
+        int previousComputerBoardScore = 0;
 
         for (int turn = 1; turn <= rounds; turn++) {
-            board.displayBoard();
-
-            System.out.println("Turn " + turn + " of " + rounds);
-
-            // Get a valid player move
-            int row;
-            int col;
-
-            while (true) {
-                System.out.print("Player(X) Turn (Row Col): ");
-
-                if (!input.hasNextInt()) {
-                    System.out.println("Enter two numbers.");
-                    input.next();
-                    continue;
-                }
-
-                row = input.nextInt();
-
-                if (!input.hasNextInt()) {
-                    System.out.println("Enter two numbers.");
-                    continue;
-                }
-
-                col = input.nextInt();
-
-                if (board.isValidMove(row, col)) {
-                    break;
-                }
-
-                System.out.println("Invalid move. Try again.");
+ 
+            if (!board.hasEmptyCells()) {
+                System.out.println("The board is full!");
+                break;
             }
 
-            board.placeToken(row, col, player.getToken());
+            System.out.println("\n==============================");
+            System.out.println("Turn " + turn + " of " + rounds);
+            System.out.println("==============================");
+            System.out.println("Player Score: " + player.getScore());
+            System.out.println("Computer Score: " + computer.getScore());
+            System.out.println();
 
-            // Computer chooses a random empty cell
-            int computerRow;
-            int computerCol;
+            board.displayBoard();
 
-            do {
-                computerRow = random.nextInt(8);
-                computerCol = random.nextInt(8);
-            } while (!board.isValidMove(
+            int row = -1;
+            int col = -1;
+            boolean validMove = false;
+
+            while (!validMove) {
+                System.out.print(
+                    "Player (X) Turn (Row Col): ");
+
+                String move = input.nextLine().trim();
+                String[] coordinates = move.split("\\s+");
+
+                if (coordinates.length != 2) {
+                    System.out.println(
+                        "Enter two numbers separated by a space.");
+                    continue;
+                }
+
+                try {
+                    row = Integer.parseInt(coordinates[0]);
+                    col = Integer.parseInt(coordinates[1]);
+
+                } catch (NumberFormatException e) {
+                    System.out.println("Enter valid numbers.");
+                    continue;
+                }
+
+                if (board.isValidMove(row, col)) {
+                    validMove = true;
+                    board.placeToken(row, col, 'X');
+                } else {
+                    System.out.println(
+                        "Invalid move. Try again.");
+                }
+
+            }
+
+            if (board.hasEmptyCells()) {
+                int computerRow;
+                int computerCol;
+
+                do {
+                    computerRow = random.nextInt(8);
+                    computerCol = random.nextInt(8);
+
+                } while (!board.isValidMove(
                     computerRow, computerCol));
 
-            board.placeToken(
-                    computerRow,
-                    computerCol,
-                    computer.getToken());
+                board.placeToken(
+                    computerRow, computerCol, 'C');
 
-            // Vector scoring will be added here.
+                System.out.println(
+                    "Computer placed C at: " +
+                    computerRow + " " + computerCol);
+            }
+
+            int currentPlayerBoardScore =
+                board.calculateTotalScore('X');
+
+            int currentComputerBoardScore =
+                board.calculateTotalScore('C');
+
+            int playerRoundPoints =
+                currentPlayerBoardScore -
+                previousPlayerBoardScore;
+
+            int computerRoundPoints =
+                currentComputerBoardScore -
+                previousComputerBoardScore;
+
+            player.addPoints(playerRoundPoints);
+            computer.addPoints(computerRoundPoints);
+
+            player.setLastRoundScore(playerRoundPoints);
+            computer.setLastRoundScore(computerRoundPoints);
+
+            previousPlayerBoardScore =
+                currentPlayerBoardScore;
+
+            previousComputerBoardScore =
+                currentComputerBoardScore;
+
+            System.out.println("\nRound Results:");
+            System.out.println(
+                "Player earned: " + player.getLastRoundScore());
+
+            System.out.println(
+                "Computer earned: " + computer.getLastRoundScore());
+
+            System.out.println(
+                "Player Total: " + player.getScore());
+
+            System.out.println(
+                "Computer Total: " + computer.getScore());
         }
+
+        System.out.println("\n==============================");
+        System.out.println("          GAME OVER");
+        System.out.println("==============================");
 
         board.displayBoard();
 
-        int finalScore = player.getScore()
-                       - computer.getScore();
+        int finalScore =
+            player.getScore() - computer.getScore();
+ 
+        System.out.println("\nFinal Results:");
+        System.out.println(
+            player.getName() + ": " + player.getScore());
 
-        System.out.println("Player Score: " + player.getScore());
-        System.out.println("Computer Score: " + computer.getScore());
+        System.out.println(
+            "Computer: " + computer.getScore());
+
         System.out.println("Final Score: " + finalScore);
+
+        if (finalScore > 0) {
+            System.out.println("You won!");
+        } else if (finalScore < 0) {
+            System.out.println("Computer won!");
+        } else {
+            System.out.println("It's a tie!");
+        }
+
+        if (finalScore > highScore) {
+            System.out.println("\nNew High Score!");
+
+            HighScore.saveHighScore(
+                finalScore, player.getName());
+
+            System.out.println(
+                "High score saved for " + player.getName());
+        } else {
+            System.out.println("\nHigh Score: " + highScore);
+            System.out.println("Held by: " + highScoreName);
+        }
 
         input.close();
     }
+
 }
