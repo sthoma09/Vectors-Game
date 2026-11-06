@@ -1,5 +1,7 @@
+package Game;
 
 public class GameBoard {
+
     private char[][] board;
 
     public GameBoard() {
@@ -9,49 +11,141 @@ public class GameBoard {
             for (int col = 0; col < 8; col++) {
                 board[row][col] = ' ';
             }
+
         }
+
     }
 
     public boolean isValidMove(int row, int col) {
-        if (row < 0 || row >= 8 ||
-            col < 0 || col >= 8) {
+        return row >= 0 && row < 8 &&
+               col >= 0 && col < 8 &&
+               board[row][col] == ' ';
+    }
+
+    public boolean placeToken(int row, int col, char token) {
+
+        if (!isValidMove(row, col)) {
             return false;
         }
 
-        return board[row][col] == ' ';
+        board[row][col] = token;
+        return true;
     }
 
-    public void placeToken(int row, int col, char token) {
-        if (isValidMove(row, col)) {
-            board[row][col] = token;
-        }
-    }
-
-    public void displayBoard() {
-        System.out.println("  0   1   2   3   4   5   6   7");
+    public boolean hasEmptyCells() {
 
         for (int row = 0; row < 8; row++) {
-            System.out.println("---------------------------------");
-
             for (int col = 0; col < 8; col++) {
-                System.out.print("| " + board[row][col] + " ");
+                if (board[row][col] == ' ') {
+                    return true;
+                }
+
             }
 
-            System.out.println("| " + row);
         }
 
-        System.out.println("---------------------------------");
+        return false;
     }
 
-    public int getVectorPoints(int length) {
+ 
+    public void displayBoard() {
+        System.out.println("    0   1   2   3   4   5   6   7");
+
+        for (int row = 0; row < 8; row++) {
+            System.out.println("  ---------------------------------");
+
+            for (int col = 0; col < 8; col++) {
+                System.out.print(" | " + board[row][col]);
+            }
+
+            System.out.println(" | " + row);
+        }
+
+        System.out.println("  ---------------------------------");
+    }
+
+ 
+
+    public int calculateVectorScore(int length) {
+        int score = 0;
+
+        while (length >= 5) {
+            score += 10;
+            length -= 5;
+        }
+
         if (length == 3) {
-            return 4;
+            score += 4;
         } else if (length == 4) {
-            return 6;
-        } else if (length == 5) {
-            return 10;
-        } else {
-            return 0;
+            score += 6;
         }
+
+        return score;
     }
+
+
+    public int calculateTotalScore(char token) {
+        int totalScore = 0;
+
+        int[][] directions = {
+
+            {0, 1},
+
+            {1, 0},
+
+            {1, 1},
+
+            {1, -1}
+
+        };
+
+ 
+
+        for (int[] direction : directions) {
+            int rowChange = direction[0];
+            int colChange = direction[1];
+
+            for (int row = 0; row < 8; row++) {
+                for (int col = 0; col < 8; col++) {
+
+                    if (board[row][col] != token) {
+                        continue;
+                    }
+
+                    int previousRow = row - rowChange;
+                    int previousCol = col - colChange;
+
+                    if (previousRow >= 0 && previousRow < 8 &&
+                        previousCol >= 0 && previousCol < 8 &&
+                        board[previousRow][previousCol] == token) {
+                        continue;
+                    }
+
+                    int length = 0;
+                    int currentRow = row;
+                    int currentCol = col;
+
+                    while (currentRow >= 0 && currentRow < 8 &&
+                           currentCol >= 0 && currentCol < 8 &&
+                           board[currentRow][currentCol] == token) {
+
+                        length++;
+
+                        currentRow += rowChange;
+                        currentCol += colChange;
+                    }
+
+                    if (length >= 3) {
+                        totalScore += calculateVectorScore(length);
+                    }
+
+                }
+
+            }
+
+        }
+
+        return totalScore;
+    }
+
 }
