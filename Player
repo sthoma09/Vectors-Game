@@ -1,15 +1,20 @@
+package Game;
 
 public class Player {
+
     private String name;
     private char token;
     private int score;
     private int lastRoundScore;
 
+
     public Player(String name, char token) {
+
         this.name = name;
         this.token = token;
         this.score = 0;
         this.lastRoundScore = 0;
+
     }
 
     public String getName() {
@@ -35,4 +40,5 @@ public class Player {
     public void setLastRoundScore(int points) {
         lastRoundScore = points;
     }
+
 }
