@@ -1,0 +1,53 @@
+package Game;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.io.IOException;
+
+
+public class HighScore {
+
+    private static final String FILE_NAME = "highscore.txt";
+
+    public static int loadScore() {
+        try (BufferedReader reader =
+                 new BufferedReader(new FileReader(FILE_NAME))) {
+
+            return Integer.parseInt(reader.readLine());
+
+        } catch (IOException | NumberFormatException e) {
+            return 0;
+        }
+
+    }
+    public static String loadName() {
+        try (BufferedReader reader =
+                 new BufferedReader(new FileReader(FILE_NAME))) {
+
+            reader.readLine();
+            String name = reader.readLine();
+
+            return name == null ? "None" : name;
+
+        } catch (IOException e) {
+            return "None";
+        }
+
+    }
+
+    public static void saveHighScore(int score, String name) {
+        try (PrintWriter writer =
+                 new PrintWriter(new FileWriter(FILE_NAME))) {
+
+            writer.println(score);
+            writer.println(name);
+
+        } catch (IOException e) {
+            System.out.println("Could not save high score.");
+        }
+
+    }
+
+}
